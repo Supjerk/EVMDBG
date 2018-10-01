@@ -10,41 +10,39 @@ class Disassembler(object):
         op = hex_decode(self.opcode)
         op = split_by_length(op, 2)
          
-        end = len(op)
         count = 0
+        end = len(op)
         
         assemble = []
 
         while count < end:
-            instruction, argc = self.instruction(int(op[count], 16))
-            
-            if argc != 0:
-                arg = '0x'
-
-                start = i + 1
-                
-                for i in range(start, start + argc):
-                    arg += op[i]
-                
-                count += argc
-
-            assemble.append(instruction + arg)
-            
-            count += 1
+            instruction = self.opcode_to_instruction(int(op[count], 16))
+            instruction, length = self.instruction_with_argument(instruction, op, count)
+            assemble.append(instruction)
+            count += length + 1
 
         assemble = list_to_string(assemble, '\n')
 
         return assemble
 
-    def instruction(self, opcode):
+    def opcode_to_instruction(self, opcode):
         try:
             instruction = Opcode(opcode).name
         except ValueError:
             instruction = 'INVALID'
 
-        if instruction.startswith('PUSH'):
-            argc = int(instruction[4:])
-        else:
-            argc = 0
+        return instruction
 
-        return instrcution, argc
+
+    def instruction_with_argument(self, instruction, op, count):
+        if not instruction.startswith('PUSH'):
+            return instruction, 0
+
+        length = int(instruction[4:])
+        start = count + 1
+
+        argument = op[start:start + length]
+        argument = '0x' + list_to_string(argument, '')
+        instruction = list_to_string([instruction, argument], ' ')
+
+        return instruction, length
