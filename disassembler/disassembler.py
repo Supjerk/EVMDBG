@@ -17,13 +17,13 @@ class Disassembler(object):
 
         while count < end:
             instruction = self.opcode_to_instruction(int(op[count], 16))
-            instruction, length = self.instruction_with_argument(instruction, op, count)
+            instruction, count = self.instruction_with_argument(instruction, op, count)
             assemble.append(instruction)
-            count += length + 1
 
         assemble = list_to_string(assemble, '\n')
 
         return assemble
+
 
     def opcode_to_instruction(self, opcode):
         try:
@@ -36,7 +36,7 @@ class Disassembler(object):
 
     def instruction_with_argument(self, instruction, op, count):
         if not instruction.startswith('PUSH'):
-            return instruction, 0
+            return instruction, count + 1
 
         length = int(instruction[4:])
         start = count + 1
@@ -45,4 +45,4 @@ class Disassembler(object):
         argument = '0x' + list_to_string(argument, '')
         instruction = list_to_string([instruction, argument], ' ')
 
-        return instruction, length
+        return instruction, count + length + 1
