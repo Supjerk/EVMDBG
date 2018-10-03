@@ -23,8 +23,8 @@ class Disassembler(object):
         assemble = list_to_string(assemble, '\n')
 
         return assemble
-
-
+   
+   
     def opcode_to_instruction(self, opcode):
         try:
             instruction = Opcode(opcode).name

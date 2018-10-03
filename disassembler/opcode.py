@@ -136,10 +136,3 @@ class Opcode(enum.Enum):
     REVERT = 0xfd
     INVALID = 0xfe
     SELFDESTRUCT = 0xff
-
-
-def is_opcode(opcode):
-    if opcode.startswith('0x'):
-        return True
-
-    return False
