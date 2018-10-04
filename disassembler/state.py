@@ -2,13 +2,13 @@ from exception import StackException
 
 class Environment:
     # MSG, TX, etc State
-    def __init__(self, active_account, active_function, sender, data, gas_price, value, origin):
+    def __init__(self, active_account, active_function, sender, data, gasprice, value, origin):
         self.active_account = active_account
         self.active_function = active_function
         
         self.sender = sender
         self.data = data
-        self.gas_price = gas_price
+        self.gasprice = gasprice
         self.origin = origin
         self.value = value
 
@@ -64,12 +64,34 @@ class MachineState:
         self.gas = gas
         self.constraints = []
         self.depth = 0
+    
+    def memory_extend(self, start, size):
+        if self.memory_size > start + size:
+            return
+
+        memory_extend_size = (start + size - self.memory_size)
+        self.memory.extend(bytearray(memory_extend_size))
+
+
+    def memory_write(self, offset, data):
+        self.memory_extend(offset, len(data))
+        self.memory[offset:offset+len(data)] = data
+
+    
+    def memory_read(self, offset, length):
+        return self.memory[offset:offset+length]
 
 
 class GlobalState:
     # Ethereum Block State
-    def __init__(self):
-        self.mstate = MachineState()
+    def __init__(self, node, world_state, environment, machine_state=None, transaction_stack=None, last_return_data=None):
+        self.node = node
+        self.world_state = world_state
+        self.environment = environment
+        self.mstate = machine_state if machine_state else MachineState(gas=10000000)
+        self.transaction_stack = transaction_stack if transaction_stack else []
+        self.op_code = ""
+        self.last_return_data = last_return_data
 
 
 class WorldState:

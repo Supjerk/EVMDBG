@@ -1,5 +1,3 @@
-from state import GlobalState
-
 class Instruction(object):
     def __init__(self, assemble):
         self.assemble = assemble

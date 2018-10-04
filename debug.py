@@ -1,8 +1,9 @@
-from disassembler.disassembler import Disassembler
+from disassembler.disassembler import *
+from disassembler.instruction import *
 
 def get_argument():
     import argparse
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-o', '--OPCODE')
     args = parser.parse_args()
@@ -16,14 +17,15 @@ def main():
 
     f = open(file_name, 'r')
     opcode = f.read().replace('\n', '')
-    
+
     disas = Disassembler(opcode)
     code = disas.disassemble()
 
     print '----- CODE -----'
     print code
 
-    f.close()
+
+    
 
 if __name__ == '__main__':
     main()

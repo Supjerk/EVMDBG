@@ -22,3 +22,6 @@ def split_by_length(string, length):
         result.append(string[i:i+length])
 
     return result
+
+
+def keccak256(
