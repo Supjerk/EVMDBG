@@ -2,9 +2,9 @@ from exception import StackException
 
 class Environment:
     # MSG, TX, etc State
-    def __init__(self, active_account, sender, data, gas_price, value, origin):
+    def __init__(self, active_account, active_function, sender, data, gas_price, value, origin):
         self.active_account = active_account
-        self.active_function = ''
+        self.active_function = active_function
         
         self.sender = sender
         self.data = data
@@ -23,26 +23,36 @@ class MachineStack:
 
     def push(self, argument):
         if len(self.stack) >= self.LIMIT_SIZE:
-            raise StackException('Stack is Full. You cannot push stack')
+            raise StackException('Stack is full')
         
         self.stack.append(argument)
 
 
     def pop(self):
         if self.stack == []:
-            raise StackException('Stack is NULL. You cannot pop stack')
+            raise StackException('Stack is empty')
 
-        self.stack.pop()
+        return self.stack.pop()
 
     
     def get(self, index):
         if self.stack == []:
-            raise StackException('Stack is NULL. You cannot access stack')
+            raise StackException('Stack is empty')
 
         if len(self.stack) < abs(index):
-            raise StackExecption('Not Access stack')
+            raise StackExecption('Inacccessible index in Stack')
 
         return self.stack[index]
+    
+    
+    def set(self, index, value):
+        if self.stack == []:
+            raise StackException('Stack is empty')
+
+        if len(self.stack) < abs(index):
+            raise StackExecption('Inaccessible index in Stack')
+
+        self.stack[index] = value
 
 
 class MachineState:
@@ -59,7 +69,7 @@ class MachineState:
 class GlobalState:
     # Ethereum Block State
     def __init__(self):
-        pass
+        self.mstate = MachineState()
 
 
 class WorldState:
