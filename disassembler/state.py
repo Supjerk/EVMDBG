@@ -1,5 +1,3 @@
-from exception import StackException
-
 class Environment:
     # MSG, TX, etc State
     def __init__(self, active_account, active_function, sender, data, gasprice, value, origin):
@@ -56,7 +54,6 @@ class MachineStack:
 
 
 class MachineState:
-    # Smart Contract (EVM) State
     def __init__(self, gas):
         self.pc = 0
         self.stack = MachineStack()
@@ -65,6 +62,7 @@ class MachineState:
         self.constraints = []
         self.depth = 0
     
+
     def memory_extend(self, start, size):
         if self.memory_size > start + size:
             return
@@ -82,19 +80,6 @@ class MachineState:
         return self.memory[offset:offset+length]
 
 
-class GlobalState:
-    # Ethereum Block State
-    def __init__(self, node, world_state, environment, machine_state=None, transaction_stack=None, last_return_data=None):
-        self.node = node
-        self.world_state = world_state
-        self.environment = environment
-        self.mstate = machine_state if machine_state else MachineState(gas=10000000)
-        self.transaction_stack = transaction_stack if transaction_stack else []
-        self.op_code = ""
-        self.last_return_data = last_return_data
-
-
-class WorldState:
-    # Ethereum World State
-    def __init__(self):
-        pass
+    @property
+    def memory_size(self):
+        return len(self.memory)

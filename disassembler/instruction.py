@@ -3,7 +3,7 @@ class Instruction(object):
         self.assemble = assemble
 
 
-    def evaluate(self, global_state):
+    def evaluate(self, mstate):
         assemble = self.assemble.lower()
         
 	if self.assemble.startswith('PUSH'):
@@ -17,236 +17,236 @@ class Instruction(object):
 
         mutator = getattr(self, assemble + '_', None)
 		
-        return mutator(global_state)
+        return mutator(mstate)
 
-    def push_(self, global_state):
+    def push_(self, mstate):
         argument = self.assemble.split(' ')[1]
 
-        global_state.mstate.stack.push(argument)
+        mstate.stack.push(argument)
 
-        return global_state
-
-
-    def pop_(self, global_state):
-        global_state.mstate.stack.pop(argument)
-
-        return global_state
+        return mstate
 
 
-    def dup_(self, global_state):
+    def pop_(self, mstate):
+        mstate.stack.pop(argument)
+
+        return mstate
+
+
+    def dup_(self, mstate):
         index = int(self.assemble[3:])
         index = -index
         
-        value = global_state.mstate.stack.get(index)
+        value = mstate.stack.get(index)
         
-        global_state.mstate.stack.push(value)
+        mstate.stack.push(value)
 
-        return global_state
+        return mstate
 
 
-    def swap_(self, global_state):
+    def swap_(self, mstate):
         index = int(self.assemble[4:]) + 1
         index = -index
         
-        value = global_state.mstate.stack.get(-1)
-        target = global_state.mstate.stack.get(index)
+        value = mstate.stack.get(-1)
+        target = mstate.stack.get(index)
         
-        global_state.mstate.stack.set(index, value)
-        global_state.mstate.stack.set(-1, target)
+        mstate.stack.set(index, value)
+        mstate.stack.set(-1, target)
 
-        return global_state
+        return mstate
 
     
-    def add_(self, global_state):
-        a = global_state.mstate.stack.pop()
-        b = global_state.mstate.stack.pop()
+    def add_(self, mstate):
+        a = mstate.stack.pop()
+        b = mstate.stack.pop()
 
-        global_state.mstate.stack.push(a + b)
+        mstate.stack.push(a + b)
 
-        return global_state
-
-
-    def mul_(self, global_state):
-        a = global_state.mstate.stack.pop()
-        b = global_state.mstate.stack.pop()
-
-        global_state.mstate.stack.push(a * b)
-
-        return global_state
+        return mstate
 
 
-    def sub_(self, global_state):
-        a = global_state.mstate.stack.pop()
-        b = global_state.mstate.stack.pop()
+    def mul_(self, mstate):
+        a = mstate.stack.pop()
+        b = mstate.stack.pop()
 
-        global_state.mstate.stack.push(a - b)
+        mstate.stack.push(a * b)
 
-        return global_state
+        return mstate
 
 
-    def div_(self, global_state):
-        a = global_state.mstate.stack.pop()
-        b = global_state.mstate.stack.pop()
+    def sub_(self, mstate):
+        a = mstate.stack.pop()
+        b = mstate.stack.pop()
 
-        global_state.mstate.stack.push(a // b)
+        mstate.stack.push(a - b)
 
-        return global_state
+        return mstate
+
+
+    def div_(self, mstate):
+        a = mstate.stack.pop()
+        b = mstate.stack.pop()
+
+        mstate.stack.push(a // b)
+
+        return mstate
 
     
-    def sdiv_(self, global_state):
-        a = global_state.mstate.stack.pop()
-        b = global_state.mstate.stack.pop()
+    def sdiv_(self, mstate):
+        a = mstate.stack.pop()
+        b = mstate.stack.pop()
 
-        global_state.mstate.stack.push(a // b)
+        mstate.stack.push(a // b)
 
-        return global_state
-
-
-    def mod_(self, global_state):
-        a = global_state.mstate.stack.pop()
-        b = global_state.mstate.stack.pop()
-
-        global_state.mstate.stack.push(a % b)
-
-        return global_state
+        return mstate
 
 
-    def smod_(self, global_state):
-        a = global_state.mstate.stack.pop()
-        b = global_state.mstate.stack.pop()
+    def mod_(self, mstate):
+        a = mstate.stack.pop()
+        b = mstate.stack.pop()
 
-        global_state.mstate.stack.push(a % b)
+        mstate.stack.push(a % b)
 
-        return global_state
-
-
-    def addmod_(self, global_state):
-        a = global_state.mstate.stack.pop()
-        b = global_state.mstate.stack.pop()
-        N = global_state.mstate.stack.pop()
-
-        global_state.mstate.stack.push((a + b) % N)
-
-        return global_state
+        return mstate
 
 
-    def mulmod_(self, global_state):
-        a = global_state.mstate.stack.pop()
-        b = global_state.mstate.stack.pop()
-        N = global_state.mstate.stack.pop()
+    def smod_(self, mstate):
+        a = mstate.stack.pop()
+        b = mstate.stack.pop()
 
-        global_state.mstate.stack.push((a * b) % N)
+        mstate.stack.push(a % b)
 
-        return global_state
+        return mstate
 
 
-    def exp_(self, global_state):
-        a = global_state.mstate.stack.pop()
-        b = global_state.mstate.stack.pop()
+    def addmod_(self, mstate):
+        a = mstate.stack.pop()
+        b = mstate.stack.pop()
+        N = mstate.stack.pop()
+
+        mstate.stack.push((a + b) % N)
+
+        return mstate
+
+
+    def mulmod_(self, mstate):
+        a = mstate.stack.pop()
+        b = mstate.stack.pop()
+        N = mstate.stack.pop()
+
+        mstate.stack.push((a * b) % N)
+
+        return mstate
+
+
+    def exp_(self, mstate):
+        a = mstate.stack.pop()
+        b = mstate.stack.pop()
         
-        global_state.mstate.stack.push(a ** b)
+        mstate.stack.push(a ** b)
 
-        return global_state
+        return mstate
 
 
-    def signextend_(self, global_state):
+    def signextend_(self, mstate):
         pass
 
 
-    def lt_(self, global_state):
-        a = global_state.mstate.stack.pop()
-        b = global_state.mstate.stack.pop()
+    def lt_(self, mstate):
+        a = mstate.stack.pop()
+        b = mstate.stack.pop()
 
-        global_state.mstate.stack.psuh(a < b)
+        mstate.stack.psuh(a < b)
 
-        return global_state
-
-
-    def gt_(self, global_state):
-        a = global_state.mstate.stack.pop()
-        b = global_state.mstate.stack.pop()
-
-        global_state.mstate.stack.push(a > b)
-
-        return global_state
+        return mstate
 
 
-    def slt_(self, global_state):
-        a = global_state.mstate.stack.pop()
-        b = global_state.mstate.stack.pop()
+    def gt_(self, mstate):
+        a = mstate.stack.pop()
+        b = mstate.stack.pop()
 
-        global_state.mstate.stack.push(a < b)
+        mstate.stack.push(a > b)
 
-        return global_state
-
-
-    def sgt_(self, global_state):
-        a = global_state.mstate.stack.pop()
-        b = global_state.mstate.stack.pop()
-
-        global_state.mstate.stack.push(a > b)
-
-        return global_state
+        return mstate
 
 
-    def eq_(self, global_state):
-        a = global_state.mstate.stack.pop()
-        b = global_state.mstate.stack.pop()
+    def slt_(self, mstate):
+        a = mstate.stack.pop()
+        b = mstate.stack.pop()
 
-        global_state.mstate.stack.push(a == b)
+        mstate.stack.push(a < b)
 
-        return global_state
-
-
-    def iszero_(self, global_state):
-        a = global_state.mstate.stack.pop()
-
-        global_state.mstate.stack.push(a == 0)
-
-        return global_state
+        return mstate
 
 
-    def and_(self, global_state):
-        a = global_state.mstate.stack.pop()
-        b = global_state.mstate.stack.pop()
+    def sgt_(self, mstate):
+        a = mstate.stack.pop()
+        b = mstate.stack.pop()
 
-        global_state.mstate.stack.push(a & b)
+        mstate.stack.push(a > b)
 
-        return global_state
-
-
-    def or_(self, global_state):
-        a = global_state.mstate.stack.pop()
-        b = global_state.mstate.stack.pop()
-
-        global_state.mstate.stack.push(a | b)
-
-        return global_state
+        return mstate
 
 
-    def xor_(self, global_state):
-        a = global_state.mstate.stack.pop()
-        b = global_state.mstate.stack.pop()
+    def eq_(self, mstate):
+        a = mstate.stack.pop()
+        b = mstate.stack.pop()
 
-        global_state.mstate.stack.push(a ^ b)
+        mstate.stack.push(a == b)
 
-        return global_state
+        return mstate
 
 
-    def not_(self, global_state):
-        a = global_state.mstate.stack.pop()
+    def iszero_(self, mstate):
+        a = mstate.stack.pop()
+
+        mstate.stack.push(a == 0)
+
+        return mstate
+
+
+    def and_(self, mstate):
+        a = mstate.stack.pop()
+        b = mstate.stack.pop()
+
+        mstate.stack.push(a & b)
+
+        return mstate
+
+
+    def or_(self, mstate):
+        a = mstate.stack.pop()
+        b = mstate.stack.pop()
+
+        mstate.stack.push(a | b)
+
+        return mstate
+
+
+    def xor_(self, mstate):
+        a = mstate.stack.pop()
+        b = mstate.stack.pop()
+
+        mstate.stack.push(a ^ b)
+
+        return mstate
+
+
+    def not_(self, mstate):
+        a = mstate.stack.pop()
         
-        global_state.mstate.stack.push(-a)
+        mstate.stack.push(-a)
 
-        return global_state
+        return mstate
 
 
-    def byte_(self, global_state):
-        i = global_state.mstate.stack.pop()
-        x = global_state.mstate.stack.pop()
+    def byte_(self, mstate):
+        i = mstate.stack.pop()
+        x = mstate.stack.pop()
 
         y = (x >> (i * 8)) & 0xFF
 
-        global_state.mstate.stack.push(y)
+        mstate.stack.push(y)
 
-        return global_state
+        return mstate
