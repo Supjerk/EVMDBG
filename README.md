@@ -7,7 +7,7 @@ SIMPLE EVM DBG. I'm working on the project with [Code4Block](https://github.com/
 currently repository tree.
 ```
 │
-├── disassembler
+├── debug
 │    ├── __init__.py
 │    ├── disassembler.py
 │    ├── exception.py
