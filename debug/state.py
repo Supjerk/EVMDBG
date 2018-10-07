@@ -1,3 +1,5 @@
+from exception import StackException
+
 class Environment:
     # MSG, TX, etc State
     def __init__(self, active_account, active_function, sender, data, gasprice, value, origin):
@@ -54,20 +56,22 @@ class MachineStack:
 
 
 class MachineState:
-    def __init__(self, gas):
+    def __init__(self):
         self.pc = 0
         self.stack = MachineStack()
         self.memory = []
-        self.gas = gas
-        self.constraints = []
-        self.depth = 0
+        # self.gas = gas
+        # self.constraints = []
+        # self.depth = 0
     
 
     def memory_extend(self, start, size):
-        if self.memory_size > start + size:
+        memory_size = self._memory_size()
+
+        if memory_size > start + size:
             return
 
-        memory_extend_size = (start + size - self.memory_size)
+        memory_extend_size = (start + size - memory_size)
         self.memory.extend(bytearray(memory_extend_size))
 
 
@@ -80,6 +84,5 @@ class MachineState:
         return self.memory[offset:offset+length]
 
 
-    @property
-    def memory_size(self):
+    def _memory_size(self):
         return len(self.memory)
