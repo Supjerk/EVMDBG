@@ -1,3 +1,5 @@
+from util import hexencode_to_string
+
 class Instruction(object):
     def __init__(self, assemble):
         self.assemble = assemble
@@ -254,96 +256,156 @@ class Instruction(object):
 
 
     def address_(self, global_state):
+        address = global_state.environment.active_account.address
+
+        global_state.mstate.stack.push(address)
         global_state.mstate.pc += 1
 
         return global_state
 
 
     def balance_(self, global_state):
+        addr = global_state.mstate.stack.pop()
+        balance = global_state.world_state.accounts[addr].balance
+
+        global_state.mstate.stack.push(balance)
         global_state.mstate.pc += 1
 
         return global_state
 
 
     def origin_(self, global_state):
+        origin = global_state.environment.origin
+
+        global_state.mstate.stack.push(origin)
         global_state.mstate.pc += 1
 
         return global_state
 
 
     def caller_(self, global_state):
+        caller = global_state.environment.sender
+
+        global_state.mstate.stack.push(caller)
         global_state.mstate.pc += 1
 
         return global_state
 
 
     def callvalue_(self, global_state):
+        value = global_state.environment.callvalue
+
+        global_state.mstate.stack.push(value)
         global_state.mstate.pc += 1
 
         return global_state
 
 
     def calldataload_(self, global_state):
+        i = global_state.mstate.stack.pop()
+        data = global_state.environment.calldata
+
+        global_state.mstate.stack.push(data)
         global_state.mstate.pc += 1
 
         return global_state
 
     
     def calldatasize_(self, global_state):
-        global_state.mstate.stack.push(0x1)
+        size = len(hexencode_to_string(str(global_state.environment.calldata)))
+        
+        global_state.mstate.stack.push(size)
         global_state.mstate.pc += 1
 
         return global_state
 
     
     def calldatacopy(self, global_state):
+        dest = global_state.mstate.stack.pop()
+        offset = global_state.mstate.stack.pop()
+        length = global_state.mstate.stack.pop()
+
+        data = global_state.environment.calldata[i:i+32]
+        global_state.mstate.memory_write(dest, data)
         global_state.mstate.pc += 1
 
         return global_state
 
 
     def codesize_(self, global_state):
+        size = len(global_state.environment.active_account.code)
+
+        global_state.mstate.stack.push(size)
         global_state.mstate.pc += 1
 
         return global_state
 
 
     def codecopy_(self, global_state):
+        dest = global_state.mstate.stack.pop()
+        offset = global_state.mstate.stack.pop()
+        length = global_state.mstate.stack.pop()
+
+        data = global_state.environment.active_account.code[offset:offset+length]
+        global_state.mstate.memory_write(dest, data)
         global_state.mstate.pc += 1
 
         return global_state
 
  
     def gasprice_(self, global_state):
+        gasprice = global_state.environment.gasprice
+
+        global_state.mstate.stack.push(gasprice)
         global_state.mstate.pc += 1
 
         return global_state
 
 
     def extcodesize_(self, global_state):
+        addr = global_state.mstate.stack.pop()
+        size = len(global_state.world_state.accounts[addr].code)
+
+        global_state.mstate.stack.push(size)
         global_state.mstate.pc += 1
 
         return global_state
 
 
     def extcodecopy_(self, global_state):
+        addr = global_state.mstate.stack.pop()
+        dest = global_state.mstate.stack.pop()
+        offset = global_state.mstate.stack.pop()
+        length = global_state.mstate.stack.pop()
+
+        data = global_state.world_state.accounts[addr].code[offset:offset+length]
+        global_state.mstate.memory_write(dest, data)
         global_state.mstate.pc += 1
 
         return global_state
 
 
     def returndatasize_(self, global_state):
+        size = len(global_state.last_return_data)
+
+        global_state.mstate.stack.push(size)
         global_state.mstate.pc += 1
 
         return global_state
 
 
     def returndatacopy_(self, global_state):
+        dest = global_state.mstate.stack.pop()
+        offset = global_state.mstate.stack.pop()
+        length = global_state.mstate.stack.pop()
+
+        data = global_state.last_return_data[offset:offset+length]
+        global_state.mstate.memory_write(dest, data)
         global_state.mstate.pc += 1
 
         return global_state
 
-
+    ########## Block Instruction ##########
     def blockhash_(self, global_state):
         global_state.mstate.pc += 1
 
@@ -378,7 +440,7 @@ class Instruction(object):
         global_state.mstate.pc += 1
 
         return global_state
-
+    ########## Block Instruction ##########
 
     def pop_(self, global_state):
         global_state.mstate.stack.pop(argument)
@@ -389,7 +451,7 @@ class Instruction(object):
     
     def mload_(self, global_state):
         offset = global_state.mstate.stack.pop()
-        value = ord(global_state.mstate.memory_read(offset, 32))
+        value = ord(global_state.mstate.memory[offset:offset+32])
 
         global_state.mstate.stack.push(value)
         global_state.mstate.pc += 1
@@ -418,12 +480,20 @@ class Instruction(object):
 
 
     def sload_(self, global_state):
+        key = global_state.mstate.stack.pop()
+        
+        value = global_state.environment.active_account.storage._storage[key]
+        global_state.mstate.stack.push(value)
         global_state.mstate.pc += 1
 
         return global_state
 
 
     def sstore_(self, global_state):
+        key = global_state.mstate.stack.pop()
+        value = global_state.mstate.stack.pop()
+
+        global_state.environment.active_account.storage._storage[key] = value
         global_state.mstate.pc += 1
 
         return global_state
@@ -458,6 +528,9 @@ class Instruction(object):
 
 
     def msize_(self, global_state):
+        size = len(global_state.mstate.memory)
+
+        global_state.mstate.stack.push(size)
         global_state.mstate.pc += 1
 
         return global_state
@@ -512,15 +585,18 @@ class Instruction(object):
 
 
     def log_(self, global_state):
-        # offset = 
-        global_state.mstate.stack.pop()
-        # length = 
-        global_state.mstate.stack.pop()
-        # depth = 
-        int(self.op_code[3:])
-        # topic = 
-        [global_state.mstate.stack.pop() for _ in range(depth)]
+        offset = global_state.mstate.stack.pop()
+        length = global_state.mstate.stack.pop()
+        depth = int(self.op_code[3:])
+        topic = [global_state.mstate.stack.pop() for _ in range(depth)]
         
+        memory = global_state.mstate.memory[offset:offset+length]
+
+        print memory, topic
+
         global_state.mstate.pc += 1
 
         return global_state
+
+    def revert_(self, global_state):
+        return

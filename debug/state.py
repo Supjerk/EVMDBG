@@ -1,20 +1,19 @@
 class Storage:
-    def __init__(self, concrete=False, address=None):
+    def __init__(self, address=None):
         self._storage = {}
-        self.concrete = concrete
         self.address = address
 
-    
-    def keys(self):
-        return self._storage.keys()
+
+    def __setitem__(self, key, value):
+        self._storage[key] = value
 
 
 class Account:
-    def __init__(self, address, code=None, contract_name='unknown', balance=None, concrete_storage=False):
+    def __init__(self, address, code=None, contract_name='unknown', balance=None):
         self.nonce = 0
         self.code = code
         self.balance = balance
-        self.storage = Storage(concreate=concrete_storage, address=address)
+        self.storage = Storage(address=address)
         
         self.address = address
         self.contract_name = contract_name
@@ -22,12 +21,12 @@ class Account:
         self.deleted = False
 
     
+    def __getitem__(self):
+        pass
+
+
     def set_balance(self, balance):
-        self.balance = balance
-
-
-    def get_balance(self, balance):
-        return self.balance        
+        self.balance = balance    
 
 
 class Environment:
@@ -35,9 +34,10 @@ class Environment:
         self.active_account = active_account
         self.active_function_name = ''
 
+        self.code = active_account.code if code is None else code
+
         self.sender = sender
         self.calldata = calldata
-        self.calldata_type = calldata_type
         self.gasprice = gasprice
         self.origin = origin
         self.callvalue = callvalue
@@ -109,17 +109,13 @@ class MachineState:
         self.memory[offset:offset+len(data)] = data
 
 
-    def memory_read(self, offset, length):
-        return self.memory[offset:offset+length]
-
-
     def _memory_size(self):
         return len(self.memory)
 
 
 class GlobalState:
-    def __init__(self, world_state, environment, node, machine_state=None, transaction_stack=None, last_return_data=None):
-        self.node = node
+    def __init__(self, world_state, environment, machine_state=None, transaction_stack=None, last_return_data=None):
+        # self.node = node
         self.world_state = world_state
         self.environment = environment
         self.mstate = machine_state if machine_state else MachineState(gas=10000000)
@@ -135,9 +131,9 @@ class WorldState:
         self.transaction_sequence = transaction_sequence or []
 
     
-    def create_account(self, balance=0, address=None, concrete_storage=False):
+    def create_account(self, balance=0, address=None):
         address = address if address else self._generate_new_address()
-        new_account = Account(address, balance=balance, concrete_storage=concrete_storage)
+        new_account = Account(address, balance=balance)
         
         self._put_account(new_account)
         
