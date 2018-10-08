@@ -1,20 +1,49 @@
-from exception import StackException
+class Storage:
+    def __init__(self, concrete=False, address=None):
+        self._storage = {}
+        self.concrete = concrete
+        self.address = address
+
+    
+    def keys(self):
+        return self._storage.keys()
+
+
+class Account:
+    def __init__(self, address, code=None, contract_name='unknown', balance=None, concrete_storage=False):
+        self.nonce = 0
+        self.code = code
+        self.balance = balance
+        self.storage = Storage(concreate=concrete_storage, address=address)
+        
+        self.address = address
+        self.contract_name = contract_name
+
+        self.deleted = False
+
+    
+    def set_balance(self, balance):
+        self.balance = balance
+
+
+    def get_balance(self, balance):
+        return self.balance        
+
 
 class Environment:
-    # MSG, TX, etc State
-    def __init__(self, active_account, active_function, sender, data, gasprice, value, origin):
+    def __init__(self, active_account, sender, calldata, gasprice, callvalue, origin, code=None):
         self.active_account = active_account
-        self.active_function = active_function
-        
+        self.active_function_name = ''
+
         self.sender = sender
-        self.data = data
+        self.calldata = calldata
+        self.calldata_type = calldata_type
         self.gasprice = gasprice
         self.origin = origin
-        self.value = value
+        self.callvalue = callvalue
 
 
 class MachineStack:
-    # Stack State
     LIMIT_SIZE = 1024
 
     def __init__(self):
@@ -24,7 +53,7 @@ class MachineStack:
     def push(self, argument):
         if len(self.stack) >= self.LIMIT_SIZE:
             raise StackException('Stack is full')
-        
+
         self.stack.append(argument)
 
 
@@ -34,7 +63,7 @@ class MachineStack:
 
         return self.stack.pop()
 
-    
+
     def get(self, index):
         if self.stack == []:
             raise StackException('Stack is empty')
@@ -43,8 +72,8 @@ class MachineStack:
             raise StackExecption('Inacccessible index in Stack')
 
         return self.stack[index]
-    
-    
+
+
     def set(self, index, value):
         if self.stack == []:
             raise StackException('Stack is empty')
@@ -56,14 +85,14 @@ class MachineStack:
 
 
 class MachineState:
-    def __init__(self):
+    def __init__(self, gas):
         self.pc = 0
         self.stack = MachineStack()
         self.memory = []
-        # self.gas = gas
-        # self.constraints = []
-        # self.depth = 0
-    
+        self.gas = gas
+        self.call_depth = []
+        self.depth = 0
+
 
     def memory_extend(self, start, size):
         memory_size = self._memory_size()
@@ -79,10 +108,55 @@ class MachineState:
         self.memory_extend(offset, len(data))
         self.memory[offset:offset+len(data)] = data
 
-    
+
     def memory_read(self, offset, length):
         return self.memory[offset:offset+length]
 
 
     def _memory_size(self):
         return len(self.memory)
+
+
+class GlobalState:
+    def __init__(self, world_state, environment, node, machine_state=None, transaction_stack=None, last_return_data=None):
+        self.node = node
+        self.world_state = world_state
+        self.environment = environment
+        self.mstate = machine_state if machine_state else MachineState(gas=10000000)
+        self.transaction_stack = transaction_stack if transaction_stack else []
+        self.op_code = ''
+        self.last_return_data = last_return_data
+
+
+class WorldState:
+    def __init__(self, transaction_sequence=None):
+        self.accounts = {}
+        self.node = None
+        self.transaction_sequence = transaction_sequence or []
+
+    
+    def create_account(self, balance=0, address=None, concrete_storage=False):
+        address = address if address else self._generate_new_address()
+        new_account = Account(address, balance=balance, concrete_storage=concrete_storage)
+        
+        self._put_account(new_account)
+        
+        return new_account
+
+
+    def create_initialized_contract_account(self, contract_code, storage):
+        new_account = Account(self._generate_new_address(), code=contract_code, balance=0)
+        new_account.storage = storage
+        self._put_account(new_account)
+
+
+    def _generate_new_address(self):
+        while True:
+            address = '0x' + ''.join([str(hex(randint(0, 16)))[-1] for _ in range(20)])
+            
+            if address not in self.accounts.keys():
+                return address
+
+
+    def _put_account(self, account):
+        self.accounts[account.address] = account

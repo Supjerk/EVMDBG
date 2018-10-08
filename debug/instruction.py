@@ -3,7 +3,7 @@ class Instruction(object):
         self.assemble = assemble
 
 
-    def evaluate(self, mstate):
+    def evaluate(self, global_state):
         assemble = self.assemble.lower()
         
 	if self.assemble.startswith('PUSH'):
@@ -16,512 +16,511 @@ class Instruction(object):
             assemble = 'log'
 
         mutator = getattr(self, assemble + '_', None)
-        print mutator		
         
-        return mutator(mstate)
+        return mutator(global_state)
 
     
-    def add_(self, mstate):
-        a = mstate.stack.pop()
-        b = mstate.stack.pop()
+    def add_(self, global_state):
+        a = global_state.mstate.stack.pop()
+        b = global_state.mstate.stack.pop()
 
-        mstate.stack.push(a + b)
-        mstate.pc += 1
+        global_state.mstate.stack.push(a + b)
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def mul_(self, mstate):
-        a = mstate.stack.pop()
-        b = mstate.stack.pop()
-
-        mstate.stack.push(a * b)
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def sub_(self, mstate):
-        a = mstate.stack.pop()
-        b = mstate.stack.pop()
+    def mul_(self, global_state):
+        a = global_state.mstate.stack.pop()
+        b = global_state.mstate.stack.pop()
 
-        mstate.stack.push(a - b)
-        mstate.pc += 1
+        global_state.mstate.stack.push(a * b)
+        global_state.mstate.pc += 1
 
-        return mstate
+        return global_state
 
 
-    def div_(self, mstate):
-        a = mstate.stack.pop()
-        b = mstate.stack.pop()
+    def sub_(self, global_state):
+        a = global_state.mstate.stack.pop()
+        b = global_state.mstate.stack.pop()
 
-        mstate.stack.push(a // b)
-        mstate.pc += 1
+        global_state.mstate.stack.push(a - b)
+        global_state.mstate.pc += 1
 
-        return mstate
+        return global_state
+
+
+    def div_(self, global_state):
+        a = global_state.mstate.stack.pop()
+        b = global_state.mstate.stack.pop()
+
+        global_state.mstate.stack.push(a // b)
+        global_state.mstate.pc += 1
+
+        return global_state
 
     
-    def sdiv_(self, mstate):
-        a = mstate.stack.pop()
-        b = mstate.stack.pop()
+    def sdiv_(self, global_state):
+        a = global_state.mstate.stack.pop()
+        b = global_state.mstate.stack.pop()
 
-        mstate.stack.push(a // b)
-        mstate.pc += 1
+        global_state.mstate.stack.push(a // b)
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def mod_(self, mstate):
-        a = mstate.stack.pop()
-        b = mstate.stack.pop()
-
-        mstate.stack.push(a % b)
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def smod_(self, mstate):
-        a = mstate.stack.pop()
-        b = mstate.stack.pop()
+    def mod_(self, global_state):
+        a = global_state.mstate.stack.pop()
+        b = global_state.mstate.stack.pop()
 
-        mstate.stack.push(a % b)
-        mstate.pc += 1
+        global_state.mstate.stack.push(a % b)
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def addmod_(self, mstate):
-        a = mstate.stack.pop()
-        b = mstate.stack.pop()
-        N = mstate.stack.pop()
-
-        mstate.stack.push((a + b) % N)
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def mulmod_(self, mstate):
-        a = mstate.stack.pop()
-        b = mstate.stack.pop()
-        N = mstate.stack.pop()
+    def smod_(self, global_state):
+        a = global_state.mstate.stack.pop()
+        b = global_state.mstate.stack.pop()
 
-        mstate.stack.push((a * b) % N)
-        mstate.pc += 1
+        global_state.mstate.stack.push(a % b)
+        global_state.mstate.pc += 1
 
-        return mstate
+        return global_state
 
 
-    def exp_(self, mstate):
-        a = mstate.stack.pop()
-        b = mstate.stack.pop()
+    def addmod_(self, global_state):
+        a = global_state.mstate.stack.pop()
+        b = global_state.mstate.stack.pop()
+        N = global_state.mstate.stack.pop()
+
+        global_state.mstate.stack.push((a + b) % N)
+        global_state.mstate.pc += 1
+
+        return global_state
+
+
+    def mulmod_(self, global_state):
+        a = global_state.mstate.stack.pop()
+        b = global_state.mstate.stack.pop()
+        N = global_state.mstate.stack.pop()
+
+        global_state.mstate.stack.push((a * b) % N)
+        global_state.mstate.pc += 1
+
+        return global_state
+
+
+    def exp_(self, global_state):
+        a = global_state.mstate.stack.pop()
+        b = global_state.mstate.stack.pop()
         
-        mstate.stack.push(a ** b)
-        mstate.pc += 1
+        global_state.mstate.stack.push(a ** b)
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def signextend_(self, mstate):
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def lt_(self, mstate):
-        a = mstate.stack.pop()
-        b = mstate.stack.pop()
+    def signextend_(self, global_state):
+        global_state.mstate.pc += 1
 
-        mstate.stack.push(a < b)
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def gt_(self, mstate):
-        a = mstate.stack.pop()
-        b = mstate.stack.pop()
+    def lt_(self, global_state):
+        a = global_state.mstate.stack.pop()
+        b = global_state.mstate.stack.pop()
 
-        mstate.stack.push(a > b)
-        mstate.pc += 1
+        global_state.mstate.stack.push(a < b)
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def slt_(self, mstate):
-        a = mstate.stack.pop()
-        b = mstate.stack.pop()
-
-        mstate.stack.push(a < b)
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def sgt_(self, mstate):
-        a = mstate.stack.pop()
-        b = mstate.stack.pop()
+    def gt_(self, global_state):
+        a = global_state.mstate.stack.pop()
+        b = global_state.mstate.stack.pop()
 
-        mstate.stack.push(a > b)
-        mstate.pc += 1
+        global_state.mstate.stack.push(a > b)
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def eq_(self, mstate):
-        a = mstate.stack.pop()
-        b = mstate.stack.pop()
-
-        mstate.stack.push(a == b)
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def iszero_(self, mstate):
-        a = mstate.stack.pop()
+    def slt_(self, global_state):
+        a = global_state.mstate.stack.pop()
+        b = global_state.mstate.stack.pop()
 
-        mstate.stack.push(a == 0)
-        mstate.pc += 1
+        global_state.mstate.stack.push(a < b)
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def and_(self, mstate):
-        a = mstate.stack.pop()
-        b = mstate.stack.pop()
-
-        mstate.stack.push(a & b)
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def or_(self, mstate):
-        a = mstate.stack.pop()
-        b = mstate.stack.pop()
+    def sgt_(self, global_state):
+        a = global_state.mstate.stack.pop()
+        b = global_state.mstate.stack.pop()
 
-        mstate.stack.push(a | b)
-        mstate.pc += 1
+        global_state.mstate.stack.push(a > b)
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def xor_(self, mstate):
-        a = mstate.stack.pop()
-        b = mstate.stack.pop()
-
-        mstate.stack.push(a ^ b)
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def not_(self, mstate):
-        a = mstate.stack.pop()
+    def eq_(self, global_state):
+        a = global_state.mstate.stack.pop()
+        b = global_state.mstate.stack.pop()
+
+        global_state.mstate.stack.push(a == b)
+        global_state.mstate.pc += 1
+
+        return global_state
+
+
+    def iszero_(self, global_state):
+        a = global_state.mstate.stack.pop()
+
+        global_state.mstate.stack.push(a == 0)
+        global_state.mstate.pc += 1
+
+        return global_state
+
+
+    def and_(self, global_state):
+        a = global_state.mstate.stack.pop()
+        b = global_state.mstate.stack.pop()
+
+        global_state.mstate.stack.push(a & b)
+        global_state.mstate.pc += 1
+
+        return global_state
+
+
+    def or_(self, global_state):
+        a = global_state.mstate.stack.pop()
+        b = global_state.mstate.stack.pop()
+
+        global_state.mstate.stack.push(a | b)
+        global_state.mstate.pc += 1
+
+        return global_state
+
+
+    def xor_(self, global_state):
+        a = global_state.mstate.stack.pop()
+        b = global_state.mstate.stack.pop()
+
+        global_state.mstate.stack.push(a ^ b)
+        global_state.mstate.pc += 1
+
+        return global_state
+
+
+    def not_(self, global_state):
+        a = global_state.mstate.stack.pop()
         
-        mstate.stack.push(-a)
-        mstate.pc += 1
+        global_state.mstate.stack.push(-a)
+        global_state.mstate.pc += 1
 
-        return mstate
+        return global_state
 
 
-    def byte_(self, mstate):
-        i = mstate.stack.pop()
-        x = mstate.stack.pop()
+    def byte_(self, global_state):
+        i = global_state.mstate.stack.pop()
+        x = global_state.mstate.stack.pop()
 
         y = (x >> (i * 8)) & 0xFF
 
-        mstate.stack.push(y)
-        mstate.pc += 1
+        global_state.mstate.stack.push(y)
+        global_state.mstate.pc += 1
 
-        return mstate
+        return global_state
 
 
-    def sha3_(self, mstate):
+    def sha3_(self, global_state):
         '''
-        offset = mstate.stack.pop()
-        length = mstate.stack.pop()
+        offset = global_state.mstate.stack.pop()
+        length = global_state.mstate.stack.pop()
 
-        value = mstate.memory_read(offset, length)
+        value = global_state.mstate.memory_read(offset, length)
         hash_data = keccak256(value)
 
-        mstate.stack.push(hash_data)
+        global_state.mstate.stack.push(hash_data)
         '''
-        mstate.pc += 1
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def address_(self, mstate):
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def balance_(self, mstate):
-        mstate.pc += 1
+    def address_(self, global_state):
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def origin_(self, mstate):
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def caller_(self, mstate):
-        mstate.pc += 1
+    def balance_(self, global_state):
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def callvalue_(self, mstate):
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def calldataload_(self, mstate):
-        mstate.pc += 1
+    def origin_(self, global_state):
+        global_state.mstate.pc += 1
 
-        return mstate
+        return global_state
 
-    
-    def calldatasize_(self, mstate):
-        mstate.stack.push(0x1)
-        mstate.pc += 1
 
-        return mstate
+    def caller_(self, global_state):
+        global_state.mstate.pc += 1
+
+        return global_state
+
+
+    def callvalue_(self, global_state):
+        global_state.mstate.pc += 1
+
+        return global_state
+
+
+    def calldataload_(self, global_state):
+        global_state.mstate.pc += 1
+
+        return global_state
 
     
-    def calldatacopy(self, mstate):
-        mstate.pc += 1
+    def calldatasize_(self, global_state):
+        global_state.mstate.stack.push(0x1)
+        global_state.mstate.pc += 1
 
-        return mstate
+        return global_state
+
+    
+    def calldatacopy(self, global_state):
+        global_state.mstate.pc += 1
+
+        return global_state
 
 
-    def codesize_(self, mstate):
-        mstate.pc += 1
+    def codesize_(self, global_state):
+        global_state.mstate.pc += 1
 
-        return mstate
+        return global_state
 
 
-    def codecopy_(self, mstate):
-        mstate.pc += 1
+    def codecopy_(self, global_state):
+        global_state.mstate.pc += 1
 
-        return mstate
+        return global_state
 
  
-    def gasprice_(self, mstate):
-        mstate.pc += 1
+    def gasprice_(self, global_state):
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def extcodesize_(self, mstate):
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def extcodecopy_(self, mstate):
-        mstate.pc += 1
+    def extcodesize_(self, global_state):
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def returndatasize_(self, mstate):
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def returndatacopy_(self, mstate):
-        mstate.pc += 1
+    def extcodecopy_(self, global_state):
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def blockhash_(self, mstate):
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def coinbase_(self, mstate):
-        mstate.pc += 1
+    def returndatasize_(self, global_state):
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def timestamp_(self, mstate):
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def number_(self, mstate):
-        mstate.pc += 1
+    def returndatacopy_(self, global_state):
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def difficulty_(self, mstate):
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def gaslimit_(self, mstate):
-        mstate.pc += 1
+    def blockhash_(self, global_state):
+        global_state.mstate.pc += 1
 
-        return mstate
+        return global_state
 
 
-    def pop_(self, mstate):
-        mstate.stack.pop(argument)
-        mstate.pc += 1
+    def coinbase_(self, global_state):
+        global_state.mstate.pc += 1
 
-        return mstate
+        return global_state
+
+
+    def timestamp_(self, global_state):
+        global_state.mstate.pc += 1
+
+        return global_state
+
+
+    def number_(self, global_state):
+        global_state.mstate.pc += 1
+
+        return global_state
+
+
+    def difficulty_(self, global_state):
+        global_state.mstate.pc += 1
+
+        return global_state
+
+
+    def gaslimit_(self, global_state):
+        global_state.mstate.pc += 1
+
+        return global_state
+
+
+    def pop_(self, global_state):
+        global_state.mstate.stack.pop(argument)
+        global_state.mstate.pc += 1
+
+        return global_state
     
     
-    def mload_(self, mstate):
-        offset = mstate.stack.pop()
-        value = ord(mstate.memory_read(offset, 32))
+    def mload_(self, global_state):
+        offset = global_state.mstate.stack.pop()
+        value = ord(global_state.mstate.memory_read(offset, 32))
 
-        mstate.stack.push(value)
-        mstate.pc += 1
+        global_state.mstate.stack.push(value)
+        global_state.mstate.pc += 1
 
-        return mstate
+        return global_state
 
 
-    def mstore_(self, mstate):
-        offset = mstate.stack.pop()
-        value = chr(mstate.stack.pop())
+    def mstore_(self, global_state):
+        offset = global_state.mstate.stack.pop()
+        value = chr(global_state.mstate.stack.pop())
         
-        mstate.memory_write(offset, value)
-        mstate.pc += 1
+        global_state.mstate.memory_write(offset, value)
+        global_state.mstate.pc += 1
     
-        return mstate
+        return global_state
 
 
-    def mstore8_(self, mstate):
-        offset = mstate.stack.pop()
-        value = chr(mstate.stack.pop() & 0xff)
+    def mstore8_(self, global_state):
+        offset = global_state.mstate.stack.pop()
+        value = chr(global_state.mstate.stack.pop() & 0xff)
 
-        mstate.memory_write(offset, value)
-        mstate.pc += 1
+        global_state.mstate.memory_write(offset, value)
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def sload_(self, mstate):
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def sstore_(self, mstate):
-        mstate.pc += 1
+    def sload_(self, global_state):
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def jump_(self, mstate):
-        dest = mstate.stack.pop()
-        mstate.pc = dest
-
-        return mstate
+        return global_state
 
 
-    def jumpi_(self, mstate):
-        dest = mstate.stack.pop()
-        condition = mstate.stack.pop()
+    def sstore_(self, global_state):
+        global_state.mstate.pc += 1
+
+        return global_state
+
+
+    def jump_(self, global_state):
+        dest = global_state.mstate.stack.pop()
+        global_state.mstate.pc = dest
+
+        return global_state
+
+
+    def jumpi_(self, global_state):
+        dest = global_state.mstate.stack.pop()
+        condition = global_state.mstate.stack.pop()
 
         if condition:
-            mstate.pc = dest
+            global_state.mstate.pc = dest
         else:
-            mstate.pc += 1
+            global_state.mstate.pc += 1
 
-        return mstate
+        return global_state
 
 
-    def pc_(self, mstate):
-        pc = mstate.pc
+    def pc_(self, global_state):
+        pc = global_state.mstate.pc
         
-        mstate.stack.push(pc)
-        mstate.pc += 1
+        global_state.mstate.stack.push(pc)
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def msize_(self, mstate):
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def gas_(self, mstate):
-        mstate.pc += 1
+    def msize_(self, global_state):
+        global_state.mstate.pc += 1
 
-        return mstate
-
-
-    def jumpdest_(self, mstate):
-        mstate.pc += 1
-
-        return mstate
+        return global_state
 
 
-    def push_(self, mstate):
+    def gas_(self, global_state):
+        global_state.mstate.pc += 1
+
+        return global_state
+
+
+    def jumpdest_(self, global_state):
+        global_state.mstate.pc += 1
+
+        return global_state
+
+
+    def push_(self, global_state):
         length = int(self.assemble.split(' ')[0][4:])
         argument = int(self.assemble.split(' ')[1], 16)
 
-        mstate.stack.push(argument)
-        mstate.pc += (1 + length)
+        global_state.mstate.stack.push(argument)
+        global_state.mstate.pc += (1 + length)
 
-        return mstate
+        return global_state
 
 
-    def dup_(self, mstate):
+    def dup_(self, global_state):
         index = int(self.assemble[3:])
         index = -index
         
-        value = mstate.stack.get(index)
+        value = global_state.mstate.stack.get(index)
         
-        mstate.stack.push(value)
-        mstate.pc += 1
+        global_state.mstate.stack.push(value)
+        global_state.mstate.pc += 1
 
-        return mstate
+        return global_state
 
 
-    def swap_(self, mstate):
+    def swap_(self, global_state):
         index = int(self.assemble[4:]) + 1
         index = -index
         
-        value = mstate.stack.get(-1)
-        target = mstate.stack.get(index)
+        value = global_state.mstate.stack.get(-1)
+        target = global_state.mstate.stack.get(index)
         
-        mstate.stack.set(index, value)
-        mstate.stack.set(-1, target)
-        mstate.pc += 1
+        global_state.mstate.stack.set(index, value)
+        global_state.mstate.stack.set(-1, target)
+        global_state.mstate.pc += 1
 
-        return mstate
+        return global_state
 
 
-    def log_(self, mstate):
+    def log_(self, global_state):
         # offset = 
-        mstate.stack.pop()
+        global_state.mstate.stack.pop()
         # length = 
-        mstate.stack.pop()
+        global_state.mstate.stack.pop()
         # depth = 
         int(self.op_code[3:])
         # topic = 
-        [mstate.stack.pop() for _ in range(depth)]
+        [global_state.mstate.stack.pop() for _ in range(depth)]
         
-        mstate.pc += 1
+        global_state.mstate.pc += 1
 
-        return mstate
+        return global_state
