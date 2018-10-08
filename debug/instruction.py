@@ -1,5 +1,3 @@
-from util import hexencode_to_string
-
 class Instruction(object):
     def __init__(self, assemble):
         self.assemble = assemble
@@ -515,11 +513,14 @@ class Instruction(object):
 
 
     def log_(self, mstate):
-        offset = mstate.stack.pop()
-        length = mstate.stack.pop()
-        depth = int(self.op_code[3:])
-
-        topic = [mstate.stack.pop() for _ in range(depth)]
+        # offset = 
+        mstate.stack.pop()
+        # length = 
+        mstate.stack.pop()
+        # depth = 
+        int(self.op_code[3:])
+        # topic = 
+        [mstate.stack.pop() for _ in range(depth)]
         
         mstate.pc += 1
 

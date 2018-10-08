@@ -28,7 +28,7 @@ def main():
     
     data = f.read()
 
-    if args.JSON:
+    if file_type == 'json':
         data = json.loads(data)
         data = data[opcode]
     
