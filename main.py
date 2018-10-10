@@ -42,7 +42,7 @@ def main():
     # Target Contract
     account = Account('0xbA9A0426C28d2fc5873C78063F18e5790D0115eC', code=data, balance=5000000000000000000)
     # environment 
-    environment = Environment(account, '0x44a4bC2C9C1D8d819923Ad0d6c80BC0D7DE667A5', 0x4df7e3d000000000000000000000000000000000000000000000000000000000, 500000000000000000, True, '0x44a4bC2C9C1D8d819923Ad0d6c80BC0D7DE667A5')
+    environment = Environment(account, '0x44a4bC2C9C1D8d819923Ad0d6c80BC0D7DE667A5', '0x4df7e3d000000000000000000000000000000000000000000000000000000000', 500000000000000000, True, '0x44a4bC2C9C1D8d819923Ad0d6c80BC0D7DE667A5')
     # etherum world state
     world_state = WorldState()
     # etherum global state (evm all of state)

@@ -21,10 +21,6 @@ class Account:
         self.deleted = False
 
     
-    def __getitem__(self):
-        pass
-
-
     def set_balance(self, balance):
         self.balance = balance    
 
