@@ -21,12 +21,20 @@ currently repository tree.
 ```
 
 ## TODO
-- [ ] Implementation instruction mutator function
-- [ ] Implementation state in yellow paper
+- [x] Implementation instruction mutator function
+- [x] Implementation state in yellow paper
   - [x] Machine Stack
-  - [ ] Environment
-  - [ ] World State
-  - [ ] Global State
-  
+  - [x] Environment
+  - [x] World State
+  - [x] Global State
+- [ ] Break Point
+  - Delete
+  - Add
+  - View
+- [ ] Tracing
+  - [ ] Step
+  - [ ] Next
+  - [ ] Continue
+  - [ ] Run
 ## LICENSE
 NONE.
