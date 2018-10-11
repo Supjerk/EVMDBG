@@ -28,9 +28,9 @@ currently repository tree.
   - [x] World State
   - [x] Global State
 - [ ] Break Point
-  - Delete
-  - Add
-  - View
+  - [ ] Delete
+  - [ ] Add
+  - [ ] View
 - [ ] Tracing
   - [ ] Step
   - [ ] Next
