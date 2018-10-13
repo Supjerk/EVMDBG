@@ -3,6 +3,7 @@ import argparse
 from debug.disassembler import Disassembler
 from debug.instruction import Instruction
 from debug.state import GlobalState, WorldState, Account, Environment
+from debug.debug import Trace
 
 def parsing_arguments():
     parser = argparse.ArgumentParser()
@@ -33,10 +34,7 @@ def main():
         data = data[opcode]
     
     code = data.replace('\n', '')
-    code = Disassembler(code).disassemble()
-    
-    print code
-    
+    code = Disassembler(code).disassemble()  
     code = code.split('\n')
     
     # Target Contract
@@ -48,19 +46,8 @@ def main():
     # etherum global state (evm all of state)
     global_state = GlobalState(world_state, environment)
 
-    for i in code:
-        print '> ', i
-        
-        print 'PC: ', hex(global_state.mstate.pc)
-        print 'STACK:   ', global_state.mstate.stack.stack
-        print 'MEMORY:  ', global_state.mstate.memory
-        print 'STORAGE: ', global_state.environment.active_account.storage._storage 
-        global_state = Instruction(i).evaluate(global_state)
-        
-        if not global_state:
-            break
-
-        print ''
+    trace = Trace(code, account, environment, world_state, global_state)
+    trace.run(view=True)
 
     f.close()
 

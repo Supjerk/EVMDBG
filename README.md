@@ -14,6 +14,7 @@ currently repository tree.
 │    ├── instruction.py
 │    ├── opcode.py
 │    ├── state.py
+│    ├── debug.py
 │    └── util.py
 ├── .gitignore
 ├── main.py
@@ -21,20 +22,21 @@ currently repository tree.
 ```
 
 ## TODO
-- [x] Implementation instruction mutator function
-- [x] Implementation state in yellow paper
+- [x] Implement instruction mutator function
+- [x] Implement state in yellow paper
   - [x] Machine Stack
   - [x] Environment
   - [x] World State
   - [x] Global State
 - [ ] Break Point
   - [ ] Delete
-  - [ ] Add
+  - [x] Add
   - [ ] View
 - [ ] Tracing
   - [ ] Step
-  - [ ] Next
-  - [ ] Continue
-  - [ ] Run
+  - [x] Next
+  - [x] Continue
+  - [x] Run
+- [ ] Implement Symobl, Logger more than now
 ## LICENSE
 NONE.
