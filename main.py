@@ -45,7 +45,7 @@ def main():
     world_state = WorldState()
     # etherum global state (evm all of state)
     global_state = GlobalState(world_state, environment)
-
+    print code
     trace = Trace(code, account, environment, world_state, global_state)
     trace.run(view=True)
 

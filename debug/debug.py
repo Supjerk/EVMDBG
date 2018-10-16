@@ -42,16 +42,17 @@ class Trace:
 
     def run(self, view=False):
         for i in range(self.code_length):
-            self.current_code_index += 1
+            pc = self.symbol.global_state.mstate.pc
+
+            self.logger._logger('INS', self.code[pc])
             
             if view:
                 self.logger.infomation_logger()
-            elif self.symbol.global_state.mstate.pc in self.bp:
+            elif pc in self.bp:
                 self.logger.infomation_logger()
                 break
             
-            self.logger._logger('INS', self.code[i])
-            self.symbol.global_state = Instruction(self.code[i]).evaluate(self.symbol.global_state)
+            self.symbol.global_state = Instruction(self.code[pc]).evaluate(self.symbol.global_state)
             
             if not self.symbol.global_state:
                 self.logger.revert_logger()

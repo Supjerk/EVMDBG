@@ -303,7 +303,7 @@ class Instruction(object):
 
     def calldataload_(self, global_state):
         i = global_state.mstate.stack.pop()
-        data = int(global_state.environment.calldata[i:i+32], 16)
+        data = int(global_state.environment.calldata[i+2:i+66], 16)
 
         global_state.mstate.stack.push(data)
         global_state.mstate.pc += 1

@@ -13,13 +13,12 @@ class Disassembler(object):
         count = 0
         end = len(op)
         
-        assemble = []
-
+        assemble = ['' for _ in range(end)]
+        
         while count < end:
             instruction = self._opcode_to_instruction(int(op[count], 16))
-            instruction, count = self._instruction_with_argument(instruction, op, count)
-            assemble.append(instruction)
-
+            assemble[count], count = self._instruction_with_argument(instruction, op, count)
+        
         assemble = list_to_string(assemble, '\n')
 
         return assemble
