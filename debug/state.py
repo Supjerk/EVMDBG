@@ -1,3 +1,5 @@
+from util import hexencode_to_list
+
 class Storage:
     def __init__(self, address=None):
         self._storage = {}
@@ -100,9 +102,9 @@ class MachineState:
         self.memory.extend(bytearray(memory_extend_size))
 
 
-    def memory_write(self, offset, data):
-        self.memory_extend(offset, len(data))
-        self.memory[offset:offset+len(data)] = data
+    def memory_write(self, offset, data, length=32):
+        self.memory_extend(offset, length)
+        self.memory[offset:offset+length] = hexencode_to_list(data, length)
 
 
     def _memory_size(self):

@@ -1,4 +1,4 @@
-from util import hexencode_to_string
+from util import list_to_int
 
 class Instruction(object):
     def __init__(self, assemble):
@@ -346,8 +346,8 @@ class Instruction(object):
         offset = global_state.mstate.stack.pop()
         length = global_state.mstate.stack.pop()
 
-        data = global_state.environment.active_account.code[offset:offset+length]
-        global_state.mstate.memory_write(dest, data)
+        data = int(global_state.environment.active_account.code[offset:offset+length], 16)
+        global_state.mstate.memory_write(dest, data, length=length)
         global_state.mstate.pc += 1
 
         return global_state
@@ -443,7 +443,7 @@ class Instruction(object):
     ########## Block Instruction ##########
 
     def pop_(self, global_state):
-        global_state.mstate.stack.pop(argument)
+        global_state.mstate.stack.pop()
         global_state.mstate.pc += 1
 
         return global_state
@@ -451,7 +451,7 @@ class Instruction(object):
     
     def mload_(self, global_state):
         offset = global_state.mstate.stack.pop()
-        value = ord(global_state.mstate.memory[offset:offset+32])
+        value = list_to_int(global_state.mstate.memory[offset:offset+32])
 
         global_state.mstate.stack.push(value)
         global_state.mstate.pc += 1
@@ -461,7 +461,7 @@ class Instruction(object):
 
     def mstore_(self, global_state):
         offset = global_state.mstate.stack.pop()
-        value = chr(global_state.mstate.stack.pop())
+        value = global_state.mstate.stack.pop()
         
         global_state.mstate.memory_write(offset, value)
         global_state.mstate.pc += 1

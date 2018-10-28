@@ -62,7 +62,7 @@ class Trace:
     def continued(self, view=False):
         current = self.current_code_index
 
-        for i in range(self.current_code_index, self.code_length):
+        for i in range(current, self.code_length):
             self.current_code_index += 1
 
             if view:
