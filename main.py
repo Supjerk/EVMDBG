@@ -10,6 +10,7 @@ def parsing_arguments():
 
     parser.add_argument('-j', '--JSON')
     parser.add_argument('-o', '--OPCODE')
+    parser.add_argument('-i', '--INFO')
 
     args = parser.parse_args()
 
@@ -24,10 +25,12 @@ def main():
     elif args.OPCODE:
         file_name = args.OPCODE
         file_type = 'opcode'
-
+    
     f = open(file_name, 'r')
     
     data = f.read()
+
+    f.close()
 
     if file_type == 'json':
         data = json.loads(data)
@@ -36,20 +39,57 @@ def main():
     code = data.replace('\n', '')
     code = Disassembler(code).disassemble()  
     code = code.split('\n')
-    
+
+    if args.INFO:
+        file_name = args.INFO
+        f = open(file_name, 'r')
+
+        data = f.read().replace(' ', '').split('\n')
+
+        address = data[0].split(':')[1]
+        balance = int(data[1].split(':')[1])
+        sender = data[2].split(':')[1]
+        calldata = data[3].split(':')[1]
+        gasprice = int(data[4].split(':')[1])
+        callvalue = bool(data[5].split(':')[1].lower() == 'true')
+        origin = data[6].split(':')[1]
+
+        f.close()
+    else:
+        address = raw_input('ADDRESS: ')
+        balance = int(raw_input('BALANCE: '))
+        sender = raw_input('SENDER: ')
+        calldata = raw_input('CALL DATA: ')
+        gasprice = int(raw_input('GAS PRICE: '))
+        callvalue = bool(raw_input('CALL VALUE: ').lower() == 'true')
+        origin = raw_input('ORIGIN: ')
+
     # Target Contract
-    account = Account('0xbA9A0426C28d2fc5873C78063F18e5790D0115eC', code=data, balance=5000000000000000000)
+    account = Account(address, code=data, balance=balance)
     # environment 
-    environment = Environment(account, '0x44a4bC2C9C1D8d819923Ad0d6c80BC0D7DE667A5', '0x4df7e3d000000000000000000000000000000000000000000000000000000000', 500000000000000000, True, '0x44a4bC2C9C1D8d819923Ad0d6c80BC0D7DE667A5')
+    environment = Environment(account, sender, calldata, gasprice, callvalue, origin)
     # etherum world state
     world_state = WorldState()
     # etherum global state (evm all of state)
     global_state = GlobalState(world_state, environment)
-    print code
+    
     trace = Trace(code, account, environment, world_state, global_state)
+    
+    trace.add_break_point(0x2)
     trace.run(view=True)
+    trace.continued(view=True)
 
-    f.close()
+'''
+    for i in range(0, 3):
+        trace.next(view=True)
+    
+        if global_state == None:
+            break
+
+    print 'NEXT -> CONTINUE TEST'
+
+    trace.continued()
+'''
 
 if __name__ == '__main__':
     main()

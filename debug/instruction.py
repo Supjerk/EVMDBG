@@ -443,7 +443,7 @@ class Instruction(object):
     ########## Block Instruction ##########
 
     def pop_(self, global_state):
-        global_state.mstate.stack.pop(argument)
+        global_state.mstate.stack.pop()
         global_state.mstate.pc += 1
 
         return global_state
@@ -482,7 +482,10 @@ class Instruction(object):
     def sload_(self, global_state):
         key = global_state.mstate.stack.pop()
         
-        value = global_state.environment.active_account.storage._storage[key]
+        try:
+            value = global_state.environment.active_account.storage._storage[key]
+        except:
+            pass
         global_state.mstate.stack.push(value)
         global_state.mstate.pc += 1
 
@@ -598,5 +601,10 @@ class Instruction(object):
 
         return global_state
 
+
     def revert_(self, global_state):
-        return
+        return None
+
+
+    def assert_(self, global_state):
+        return None

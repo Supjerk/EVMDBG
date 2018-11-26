@@ -5,11 +5,11 @@ class Logger:
         self.symbol = symbol
 
     
-    def revert_logger(self):
-        self._logger('REVERT', 'TRANSACTION REVERT')
+    def end_logger(self):
+        self._logger('END', 'END OF TRANSACTION')
 
 
-    def infomation_logger(self):
+    def information_logger(self):
         self._logger('PC', hex(self.symbol.global_state.mstate.pc))
         self._logger('STACK', self.symbol.global_state.mstate.stack.stack)
         self._logger('MEMORY', self.symbol.global_state.mstate.memory)
@@ -42,56 +42,60 @@ class Trace:
 
     def run(self, view=False):
         for i in range(self.code_length):
-            pc = self.symbol.global_state.mstate.pc
+            try:
+                pc = self.symbol.global_state.mstate.pc
 
-            self.logger._logger('INS', self.code[pc])
+                if pc in self.bp:
+                    break
             
-            if view:
-                self.logger.infomation_logger()
-            elif pc in self.bp:
-                self.logger.infomation_logger()
-                break
-            
-            self.symbol.global_state = Instruction(self.code[pc]).evaluate(self.symbol.global_state)
-            
-            if not self.symbol.global_state:
-                self.logger.revert_logger()
-                break
+                self.logger._logger('INS', self.code[pc])
+                
+                if view:
+                    self.logger.information_logger()
 
+                self.symbol.global_state = Instruction(self.code[pc]).evaluate(self.symbol.global_state)
+            except:
+                self.logger.end_logger()
+                
+                return None
 
     def continued(self, view=False):
-        current = self.current_code_index
+        start = self.symbol.global_state.mstate.pc
 
-        for i in range(self.current_code_index, self.code_length):
-            self.current_code_index += 1
+        for i in range(start, self.code_length):
+            try:
+                pc = self.symbol.global_state.mstate.pc
 
-            if view:
-                self.logger.information_logger()
-            elif self.symbol.global_state.mstate.pc in self.bp:
-                self.infomation_logger()
-                break
+                if pc in self.bp:
+                    break
+                
+                self.logger._logger('INS', self.code[pc])
 
-            self.logger._logger('INS', self.code[i])
-            self.symbol.global_state = Instruction(self.code[i]).evaluate(self.symbol.global_state)
+                if view:
+                    self.logger.information_logger()
+
+                self.symbol.global_state = Instruction(self.code[pc]).evaluate(self.symbol.global_state)
             
-            if not self.symbol.global_state:
-                self.logger.revert_logger()
-                break
 
+            except:
+                self.logger.end_logger()
+
+                return None
 
     def next(self, view=False):
-        index = self.current_code_index + 1
-        if view:
-            self.logger.information_logger()
-        elif self.symbol.global_state.mstate.pc in self.bp:
-            self.logger.information_logger()
-
-        self.logger._logger('INS', self.code[index])
-        self.symbol.global_state = Instruction(self.code[index]).evaluate(self.symbol.global_state)
+        try:
+            pc = self.symbol.global_state.mstate.pc
         
-        if not self.symbol.global_state:
-            self.logger.revert_logger()
+            if view:
+                self.logger.information_logger()
+            
+            self.logger._logger('INS', self.code[pc])
+            self.symbol.global_state = Instruction(self.code[pc]).evaluate(self.symbol.global_state)
+        except:
+            self.logger.end_logger()
+            self.symbol.global_state = None
 
+            return None
 
     def add_break_point(self, pc):
         self.bp.append(pc)  

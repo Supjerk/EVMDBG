@@ -120,6 +120,9 @@ class GlobalState:
         self.last_return_data = last_return_data
 
 
+    def __del__(self):
+        pass
+
 class WorldState:
     def __init__(self, transaction_sequence=None):
         self.accounts = {}

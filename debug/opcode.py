@@ -134,5 +134,5 @@ class Opcode(enum.Enum):
     DELEGATECALL = 0xf4
     STATICCALL = 0xfa
     REVERT = 0xfd
-    INVALID = 0xfe
+    ASSERT = 0xfe
     SELFDESTRUCT = 0xff
