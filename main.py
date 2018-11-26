@@ -67,7 +67,11 @@ def main():
     # Target Contract
     account = Account(address, code=data, balance=balance)
     # environment 
+<<<<<<< HEAD
     environment = Environment(account, sender, calldata, gasprice, callvalue, origin)
+=======
+    environment = Environment(account, 0x44a4bC2C9C1D8d819923Ad0d6c80BC0D7DE667A5, '0x4df7e3d000000000000000000000000000000000000000000000000000000000', 500000000000000000, 0, 0x44a4bC2C9C1D8d819923Ad0d6c80BC0D7DE667A5)
+>>>>>>> 0e2249db73da5fc80e1314368ad248f1763c43c9
     # etherum world state
     world_state = WorldState()
     # etherum global state (evm all of state)
