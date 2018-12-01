@@ -23,7 +23,6 @@ def hexencode_to_list(target_hex_encode, size):
     result = split_by_length(string, 2)
     
     for i in range(0, len(result)):
-        print result[i]
         try:
             result[i] = int(result[i], 16)
         except ValueError:

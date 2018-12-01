@@ -74,22 +74,49 @@ def main():
     global_state = GlobalState(world_state, environment)
     
     trace = Trace(code, account, environment, world_state, global_state)
-    
-    trace.add_break_point(0x2)
-    trace.run(view=True)
-    trace.continued(view=True)
+    end = True
 
-'''
-    for i in range(0, 3):
-        trace.next(view=True)
-    
-        if global_state == None:
+    while True:
+        if end == False:
             break
 
-    print 'NEXT -> CONTINUE TEST'
+        menu = raw_input('>> ') + ' dump'
+        menu = menu.split(' ')
+        
+        if menu[0] == 'next':
+            end = trace.next(view=(menu[1] == 'True'))
+        elif menu[0] == 'continue':
+            end = trace.continued(view=(menu[1] == 'True'))
+        elif menu[0] == 'run':
+            end = trace.run(view=(menu[1] == 'True'))
+        elif menu[0] == 'addbp':
+            trace.add_breakpoint(int(menu[1]))
+        elif menu[0] == 'delbp':
+            trace.del_breakpoint(int(menu[1]))
+        elif menu[0] == 'bp':
+            trace.view_breakpoint()
+        elif menu[0] == 'memory':
+            trace.info.memory()
+        elif menu[0] == 'stack':
+            trace.info.stack()
+        elif menu[0] == 'exit':
+            break
+        else:
+            print menu[0] + 'is not found'
 
-    trace.continued()
-'''
+    '''
+    for i in range(0, 20):
+        end = trace.next(view=True)
+        
+        if end == False:
+            break
+
+        trace.info.stack()
+        print ''
+        trace.info.memory()
+
+        menu = raw_input()
+    '''
 
 if __name__ == '__main__':
     main()

@@ -20,6 +20,51 @@ class Logger:
         print state, ':\t', value, end
 
 
+class Information:
+    def __init__(self, symbol):
+        self.symbol = symbol
+
+
+    def memory(self):
+        memory = self.symbol.global_state.mstate.memory
+        length = len(memory)
+        
+        print '=' * 16, 'memory', '=' * 16
+        
+        if memory != []:
+            for i in range(0, length, 8):
+                print str(i).rjust(4, '0'), '|\t', self.memory_to_string(i, 8)
+            print '=' * 40
+        else:
+            print '=' * 13, 'Empty Memory', '=' * 13
+        
+    
+    def memory_to_string(self, index, size):
+        memory = self.symbol.global_state.mstate.memory
+        
+        value = ''
+     
+        for i in range(index, index+size):
+            value += str(memory[i]).rjust(2, '0')
+            value += '  '
+
+        return value
+
+
+    def stack(self):
+        stack = self.symbol.global_state.mstate.stack.stack
+        length = len(stack)
+
+        print '=' * 16, 'stack', '=' * 17
+
+        if stack != []:
+            for i in range(0, length):
+                print str(i).rjust(4, '0'), '|\t', stack[i]
+            print '=' * 40
+        else:
+            print '=' * 13, 'Empty Stack', '=' * 14
+
+
 class Symbol:
     def __init__(self, account, environment, world_state, global_state):
         self.account = account
@@ -31,6 +76,7 @@ class Symbol:
 class Trace:
     def __init__(self, code, account, environment, world_state, global_state):
         self.bp = []
+        self.break_flag = False
 
         self.code = code
         self.code_length = len(code)
@@ -38,26 +84,31 @@ class Trace:
         
         self.symbol = Symbol(account, environment, world_state, global_state)
         self.logger = Logger(self.symbol)
+        self.info = Information(self.symbol)
 
 
     def run(self, view=False):
         for i in range(self.code_length):
             try:
                 pc = self.symbol.global_state.mstate.pc
+                if not self.break_flag:
+                    self.logger._logger('INS', self.code[pc])
 
-                if pc in self.bp:
-                    break
-            
-                self.logger._logger('INS', self.code[pc])
+                    if view:
+                        self.logger.information_logger()
                 
-                if view:
-                    self.logger.information_logger()
-
+                if pc in self.bp and not self.break_flag:
+                    self.break_flag = True
+                    break
+                else:
+                    self.break_flag = False
+            
                 self.symbol.global_state = Instruction(self.code[pc]).evaluate(self.symbol.global_state)
             except:
                 self.logger.end_logger()
                 
-                return None
+                return False
+
 
     def continued(self, view=False):
         start = self.symbol.global_state.mstate.pc
@@ -66,36 +117,57 @@ class Trace:
             try:
                 pc = self.symbol.global_state.mstate.pc
 
-                if pc in self.bp:
-                    break
+                if not self.break_flag:
+                    self.logger._logger('INS', self.code[pc])
+
+                    if view:
+                        self.logger.information_logger()
                 
-                self.logger._logger('INS', self.code[pc])
-
-                if view:
-                    self.logger.information_logger()
-
+                if pc in self.bp and not self.break_flag:
+                    self.break_flag = True
+                    break
+                else:
+                    self.break_flag = False
+                
                 self.symbol.global_state = Instruction(self.code[pc]).evaluate(self.symbol.global_state)
-            
-
             except:
                 self.logger.end_logger()
 
-                return None
+                return False
+
 
     def next(self, view=False):
         try:
             pc = self.symbol.global_state.mstate.pc
         
+            self.logger._logger('INS', self.code[pc])
+            
             if view:
                 self.logger.information_logger()
             
-            self.logger._logger('INS', self.code[pc])
             self.symbol.global_state = Instruction(self.code[pc]).evaluate(self.symbol.global_state)
         except:
             self.logger.end_logger()
-            self.symbol.global_state = None
+            self.symbol.global_state = False
 
-            return None
+            return False
 
-    def add_break_point(self, pc):
-        self.bp.append(pc)  
+
+    def add_breakpoint(self, pc):
+        self.bp.append(pc)
+
+
+    def del_breakpoint(self, index):
+        try:
+            self.bp.pop(index)
+        except:
+            print 'Not found index'
+
+    def view_breakpoint(self):
+        length = len(self.bp)
+
+        if self.bp != []:
+            for i in range(0, length):
+                print str(i).rjust(4, '0'), '|\t', self.bp[i]
+        else:
+            print 'None'
